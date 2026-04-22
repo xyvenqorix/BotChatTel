@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Bot Dashboard</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:#0a0b10;
+    color:white;
+}
+
+.top{
+    display:flex;
+    background:#161b22;
+}
+
+.top button{
+    flex:1;
+    padding:15px;
+    background:#161b22;
+    border:none;
+    color:#8b949e;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.top button.active{
+    color:#00f2ff;
+    border-bottom:2px solid #00f2ff;
+}
+
+.page{
+    display:none;
+    padding:20px;
+}
+
+.page.active{
+    display:block;
+}
+
+.card{
+    background:#161b22;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.user{
+    padding:8px;
+    border-bottom:1px solid #30363d;
+    font-size:14px;
+}
+
+textarea{
+    width:100%;
+    height:120px;
+    background:#0d1117;
+    color:white;
+    border:1px solid #30363d;
+    border-radius:8px;
+    padding:10px;
+}
+
+button.send{
+    width:100%;
+    padding:15px;
+    background:#00f2ff;
+    border:none;
+    font-weight:bold;
+    cursor:pointer;
+}
+</style>
+
+</head>
+<body>
+
+<div class="top">
+<button class="active" onclick="show('dash')">📊 Dashboard</button>
+<button onclick="show('msg')">📨 Mensajes</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash" class="page active">
+
+<div class="card">
+<h2>Total usuarios: <span id="total">0</span></h2>
+</div>
+
+<div class="card">
+<h3>Usuarios</h3>
+<div id="users"></div>
+</div>
+
+</div>
+
+<!-- MENSAJES -->
+<div id="msg" class="page">
+
+<div class="card">
+<h3>Enviar mensaje</h3>
+<textarea id="text"></textarea>
+<button class="send" onclick="send()">Enviar a todos</button>
+</div>
+
+</div>
+
+<script>
+
+// 🔥 CONFIG SUPABASE
+const SUPABASE_URL = "TU_SUPABASE_URL";
+const SUPABASE_KEY = "TU_SUPABASE_ANON_KEY";
+
+// cargar usuarios
+async function load(){
+    const res = await fetch(SUPABASE_URL + "/rest/v1/users?select=*", {
+        headers:{
+            "apikey": SUPABASE_KEY,
+            "Authorization": "Bearer " + SUPABASE_KEY
+        }
+    });
+
+    const users = await res.json();
+
+    document.getElementById("total").innerText = users.length;
+
+    const box = document.getElementById("users");
+    box.innerHTML = "";
+
+    users.forEach(u=>{
+        const div = document.createElement("div");
+        div.className="user";
+
+        div.innerText =
+        (u.first_name || "Sin nombre") + " | #" + u.id;
+
+        box.appendChild(div);
+    });
+}
+
+// enviar mensaje (usa tu bot API)
+async function send(){
+    const text = document.getElementById("text").value;
+
+    const usersRes = await fetch(SUPABASE_URL + "/rest/v1/users?select=id", {
+        headers:{
+            "apikey": SUPABASE_KEY,
+            "Authorization": "Bearer " + SUPABASE_KEY
+        }
+    });
+
+    const users = await usersRes.json();
+
+    for(const u of users){
+        await fetch("https://api.telegram.org/botTU_TOKEN/sendMessage", {
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body: JSON.stringify({
+                chat_id: u.id,
+                text: text
+            })
+        });
+    }
+
+    alert("Enviado a " + users.length + " usuarios");
+}
+
+// tabs
+function show(id){
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".top button").forEach(b=>b.classList.remove("active"));
+
+    document.getElementById(id).classList.add("active");
+    event.target.classList.add("active");
+}
+
+load();
+
+</script>
+
+</body>
+</html>
