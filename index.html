@@ -3,150 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bot Dashboard | Usuarios</title>
+    <title>Xyvenqorix | Dashboard & Welcome</title>
     <style>
+        :root {
+            --bg: #0a0b10;
+            --card-bg: #161b22;
+            --accent: #00f2ff;
+            --text-main: #e6edf3;
+            --text-dim: #8b949e;
+            --border: #30363d;
+            --success: #238636;
+        }
+
         body { 
-            margin: 0; 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background: #0a0b10; 
-            color: white; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            margin: 0; font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); color: var(--text-main); 
+            display: flex; flex-direction: column; align-items: center;
         }
         
         header {
-            width: 100%;
-            background: #161b22;
-            padding: 20px 0;
-            text-align: center;
-            border-bottom: 1px solid #30363d;
-            margin-bottom: 20px;
+            width: 100%; background: var(--card-bg); padding: 20px 0;
+            text-align: center; border-bottom: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
-        .container {
-            width: 90%;
-            max-width: 600px;
-        }
+        header h1 { margin: 0; font-size: 1.2rem; color: var(--accent); letter-spacing: 2px; }
+
+        .container { width: 90%; max-width: 600px; padding: 20px 0; }
 
         .card { 
-            background: #161b22; 
-            padding: 20px; 
-            border-radius: 12px; 
-            margin-bottom: 15px; 
-            border: 1px solid #30363d;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            background: var(--card-bg); padding: 20px; border-radius: 12px; 
+            border: 1px solid var(--border); margin-bottom: 20px;
         }
 
-        .card h2 { margin: 0; font-size: 1.2rem; color: #8b949e; }
-        .card .value { font-size: 2.5rem; font-weight: bold; color: #00f2ff; margin-top: 10px; }
+        .stat-val { font-size: 3rem; font-weight: 800; color: var(--accent); }
 
-        .user-list {
-            max-height: 400px;
-            overflow-y: auto;
+        /* Estilo del Mensaje de Bienvenida */
+        .msg-preview {
+            background: #0d1117;
+            border: 1px solid var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #fff;
         }
+
+        .btn {
+            width: 100%; padding: 15px; border-radius: 8px; border: none;
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+            margin-top: 10px; font-family: inherit;
+        }
+
+        .btn-send { background: var(--accent); color: #000; }
+        .btn-send:hover { background: #00dce8; transform: translateY(-2px); }
 
         .user-item { 
-            padding: 12px; 
-            border-bottom: 1px solid #30363d; 
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 12px; border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between;
         }
-
-        .user-item:last-child { border-bottom: none; }
-        
-        .user-name { font-weight: bold; color: #e6edf3; }
-        .user-id { color: #8b949e; font-family: monospace; font-size: 12px; }
-
-        .btn-refresh {
-            background: #238636;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 20px;
-            transition: 0.2s;
-        }
-
-        .btn-refresh:hover { background: #2ea043; }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0d1117; }
-        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>📊 Panel de Control</h1>
+    <h1>XYVENQORIX BOT MANAGER</h1>
 </header>
 
 <div class="container">
     <div class="card">
-        <h2>Total de Usuarios</h2>
-        <div id="total" class="value">--</div>
+        <h2 style="margin:0; font-size: 0.8rem; color: var(--text-dim);">USUARIOS TOTALES</h2>
+        <div id="total" class="stat-val">0</div>
     </div>
 
-    <button class="btn-refresh" onclick="load()">🔄 Actualizar Datos</button>
-
     <div class="card">
-        <h3>Lista de Usuarios</h3>
-        <div id="users" class="user-list">Cargando...</div>
+        <h3 style="margin-top:0;">🔥 Mensaje de Bienvenida (/start)</h3>
+        <div class="msg-preview" id="welcomeMsg">🔥 Hola Bienvenid@ Te gusta el ajedrez? Esto te va a encantar
+
+Disfruta partidas rápidas y sin complicaciones:
+🤖 Juega contra la IA
+👥 O reta a un amigo en el mismo dispositivo
+
+Sin instalar nada, directo y fácil ⚡
+
+🚀 Entra ahora: https://t.me/chesssmokybot/chesssmoky</div>
+        
+        <button class="btn btn-send" onclick="sendTest()">TEST: ENVIAR A TODOS AHORA</button>
+    </div>
+
+    <div class="card" style="padding:0;">
+        <div style="padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin:0;">Jugadores Registrados</h3>
+            <button onclick="load()" style="background:none; border:none; color:var(--accent); cursor:pointer;">🔄 Refrescar</button>
+        </div>
+        <div id="users" style="max-height: 300px; overflow-y: auto;">
+            <div style="padding:20px; color:var(--text-dim);">Cargando base de datos...</div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Configuración de Supabase (Tus credenciales temporales)
     const SUPABASE_URL = "https://jmmdqhxraphmaemevfja.supabase.co";
     const SUPABASE_KEY = "sb_publishable_UobkYsDWSBwcTZpJ3d8tsQ_0hQX0N_y";
+    const TELEGRAM_TOKEN = "8744945852:AAGKyUVHutoTDP8RhV-YFTmYgLnvr5q5lhE";
 
+    // Cargar usuarios
     async function load() {
-        const box = document.getElementById("users");
-        const totalEl = document.getElementById("total");
-        
-        box.innerHTML = "Cargando...";
-        
         try {
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/users?select=*`, {
-                headers: {
-                    "apikey": SUPABASE_KEY,
-                    "Authorization": `Bearer ${SUPABASE_KEY}`
-                }
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/users?select=*&order=created_at.desc`, {
+                headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
             });
-            
-            if (!res.ok) throw new Error("Error de permisos o tabla inexistente");
-
             const users = await res.json();
-            totalEl.innerText = users.length;
+            document.getElementById("total").innerText = users.length;
             
+            const box = document.getElementById("users");
             box.innerHTML = "";
-            if (users.length === 0) {
-                box.innerHTML = "<p style='color:#8b949e; text-align:center;'>No hay usuarios registrados.</p>";
-                return;
-            }
-
             users.forEach(u => {
-                const div = document.createElement("div");
-                div.className = "user-item";
-                div.innerHTML = `
-                    <span class="user-name">${u.first_name || "Sin nombre"}</span>
-                    <span class="user-id">ID: ${u.id}</span>
-                `;
-                box.appendChild(div);
+                box.innerHTML += `
+                    <div class="user-item">
+                        <div>
+                            <div style="font-weight:bold;">${u.first_name || 'User'}</div>
+                            <div style="font-size:10px; color:var(--text-dim);">ID: ${u.id}</div>
+                        </div>
+                        <div style="color:var(--accent); font-size:12px;">@${u.username || 'n/a'}</div>
+                    </div>`;
             });
-        } catch (err) {
-            box.innerHTML = `<p style="color:#ff7b72; text-align:center;">Error de conexión. Revisa el RLS en Supabase.</p>`;
-            totalEl.innerText = "Error";
-            console.error(err);
+        } catch (e) { console.error(e); }
+    }
+
+    // Función para enviar el mensaje de ajedrez a todos
+    async function sendTest() {
+        const text = document.getElementById("welcomeMsg").innerText;
+        const confirmacion = confirm("¿Quieres enviar el mensaje de Ajedrez a todos los usuarios de la base de datos?");
+        
+        if (!confirmacion) return;
+
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id`, {
+                headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+            });
+            const users = await res.json();
+
+            for (const u of users) {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chat_id: u.id, text: text })
+                });
+            }
+            alert("¡Mensaje de ajedrez enviado con éxito!");
+        } catch (e) {
+            alert("Error en el envío");
         }
     }
 
-    // Cargar automáticamente al abrir
     load();
 </script>
 
