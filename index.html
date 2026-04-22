@@ -3,103 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xyvenqorix | Dashboard & Welcome</title>
+    <title>Xyvenqorix | Bot Manager</title>
     <style>
         :root {
             --bg: #0a0b10;
-            --card-bg: #161b22;
+            --card: #161b22;
             --accent: #00f2ff;
-            --text-main: #e6edf3;
-            --text-dim: #8b949e;
             --border: #30363d;
-            --success: #238636;
+            --text: #e6edf3;
         }
 
         body { 
-            margin: 0; font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg); color: var(--text-main); 
+            margin: 0; font-family: 'Segoe UI', Arial, sans-serif; 
+            background: var(--bg); color: white; 
             display: flex; flex-direction: column; align-items: center;
         }
         
         header {
-            width: 100%; background: var(--card-bg); padding: 20px 0;
+            width: 100%; background: var(--card); padding: 20px 0;
             text-align: center; border-bottom: 1px solid var(--border);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
-        header h1 { margin: 0; font-size: 1.2rem; color: var(--accent); letter-spacing: 2px; }
-
-        .container { width: 90%; max-width: 600px; padding: 20px 0; }
+        .container { width: 90%; max-width: 600px; }
 
         .card { 
-            background: var(--card-bg); padding: 20px; border-radius: 12px; 
-            border: 1px solid var(--border); margin-bottom: 20px;
+            background: var(--card); padding: 20px; border-radius: 12px; 
+            margin-bottom: 15px; border: 1px solid var(--border);
         }
 
-        .stat-val { font-size: 3rem; font-weight: 800; color: var(--accent); }
+        .card h2 { margin: 0; font-size: 0.9rem; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
+        .value { font-size: 2.8rem; font-weight: bold; color: var(--accent); margin-top: 5px; }
 
-        /* Estilo del Mensaje de Bienvenida */
         .msg-preview {
-            background: #0d1117;
-            border: 1px solid var(--accent);
-            padding: 15px;
-            border-radius: 8px;
-            white-space: pre-wrap;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #fff;
+            background: #0d1117; padding: 15px; border-radius: 8px;
+            border: 1px solid var(--accent); font-size: 14px;
+            white-space: pre-line; line-height: 1.4; color: #fff;
+            margin: 10px 0;
         }
 
         .btn {
-            width: 100%; padding: 15px; border-radius: 8px; border: none;
-            font-weight: bold; cursor: pointer; transition: 0.2s;
-            margin-top: 10px; font-family: inherit;
+            width: 100%; padding: 14px; border-radius: 8px; border: none;
+            font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px;
         }
 
-        .btn-send { background: var(--accent); color: #000; }
-        .btn-send:hover { background: #00dce8; transform: translateY(-2px); }
+        .btn-refresh { background: #238636; color: white; margin-bottom: 20px; }
+        .btn-webhook { background: var(--accent); color: #000; }
+        .btn:hover { opacity: 0.8; transform: translateY(-1px); }
 
+        .user-list { max-height: 300px; overflow-y: auto; margin-top: 10px; }
         .user-item { 
             padding: 12px; border-bottom: 1px solid var(--border); 
-            display: flex; justify-content: space-between;
+            display: flex; justify-content: space-between; align-items: center;
         }
+
+        .user-name { font-weight: bold; color: var(--text); }
+        .user-id { color: #8b949e; font-family: monospace; font-size: 11px; }
+
+        code { background: #000; padding: 5px; display: block; font-size: 10px; border-radius: 4px; margin-top: 10px; word-break: break-all; color: #8b949e; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>XYVENQORIX BOT MANAGER</h1>
+    <h1>⚡ AJEDREZ BOT MANAGER</h1>
 </header>
 
 <div class="container">
     <div class="card">
-        <h2 style="margin:0; font-size: 0.8rem; color: var(--text-dim);">USUARIOS TOTALES</h2>
-        <div id="total" class="stat-val">0</div>
+        <h2>Usuarios Totales</h2>
+        <div id="total" class="value">--</div>
     </div>
 
     <div class="card">
-        <h3 style="margin-top:0;">🔥 Mensaje de Bienvenida (/start)</h3>
-        <div class="msg-preview" id="welcomeMsg">🔥 Hola Bienvenid@ Te gusta el ajedrez? Esto te va a encantar
+        <h2>Mensaje de Bienvenida Activo</h2>
+        <div class="msg-preview" id="msgText">
+            🔥 Hola Bienvenid@ Te gusta el ajedrez? Esto te va a encantar
 
-Disfruta partidas rápidas y sin complicaciones:
-🤖 Juega contra la IA
-👥 O reta a un amigo en el mismo dispositivo
+            Disfruta partidas rápidas y sin complicaciones:
+            🤖 Juega contra la IA
+            👥 O reta a un amigo en el mismo dispositivo
 
-Sin instalar nada, directo y fácil ⚡
+            Sin instalar nada, directo y fácil ⚡
 
-🚀 Entra ahora: https://t.me/chesssmokybot/chesssmoky</div>
-        
-        <button class="btn btn-send" onclick="sendTest()">TEST: ENVIAR A TODOS AHORA</button>
+            🚀 Entra ahora: https://t.me/chesssmokybot/chesssmoky
+        </div>
+        <p style="font-size: 11px; color: #8b949e;">Se envía automáticamente al presionar <b>START</b>.</p>
     </div>
 
-    <div class="card" style="padding:0;">
-        <div style="padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin:0;">Jugadores Registrados</h3>
-            <button onclick="load()" style="background:none; border:none; color:var(--accent); cursor:pointer;">🔄 Refrescar</button>
-        </div>
-        <div id="users" style="max-height: 300px; overflow-y: auto;">
-            <div style="padding:20px; color:var(--text-dim);">Cargando base de datos...</div>
-        </div>
+    <div class="card">
+        <h2>Configuración del Disparador</h2>
+        <p style="font-size: 13px;">Para que el mensaje funcione, debes activar el Webhook de Supabase.</p>
+        <button class="btn btn-webhook" onclick="setupWebhook()">🔗 ACTIVAR DISPARADOR AUTOMÁTICO</button>
+        <code id="webhookUrl">Cargando URL de conexión...</code>
+    </div>
+
+    <button class="btn btn-refresh" onclick="load()">🔄 Sincronizar Base de Datos</button>
+
+    <div class="card">
+        <h3>Jugadores en Tiempo Real</h3>
+        <div id="users" class="user-list">Cargando...</div>
     </div>
 </div>
 
@@ -108,53 +111,56 @@ Sin instalar nada, directo y fácil ⚡
     const SUPABASE_KEY = "sb_publishable_UobkYsDWSBwcTZpJ3d8tsQ_0hQX0N_y";
     const TELEGRAM_TOKEN = "8744945852:AAGKyUVHutoTDP8RhV-YFTmYgLnvr5q5lhE";
 
-    // Cargar usuarios
+    // Generar URL del Webhook (Esto es lo que Telegram usará como "link de disparo")
+    const edgeFunctionUrl = `${SUPABASE_URL}/functions/v1/telegram-bot`;
+    document.getElementById('webhookUrl').innerText = `API Endpoint: ${edgeFunctionUrl}`;
+
     async function load() {
+        const box = document.getElementById("users");
+        const totalEl = document.getElementById("total");
+        box.innerHTML = "Sincronizando...";
+        
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/users?select=*&order=created_at.desc`, {
                 headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
             });
             const users = await res.json();
-            document.getElementById("total").innerText = users.length;
+            totalEl.innerText = users.length;
             
-            const box = document.getElementById("users");
             box.innerHTML = "";
+            if (users.length === 0) {
+                box.innerHTML = "<p style='color:#8b949e; text-align:center;'>Sin registros nuevos.</p>";
+                return;
+            }
+
             users.forEach(u => {
                 box.innerHTML += `
                     <div class="user-item">
-                        <div>
-                            <div style="font-weight:bold;">${u.first_name || 'User'}</div>
-                            <div style="font-size:10px; color:var(--text-dim);">ID: ${u.id}</div>
-                        </div>
-                        <div style="color:var(--accent); font-size:12px;">@${u.username || 'n/a'}</div>
+                        <span class="user-name">${u.first_name || "Anónimo"}</span>
+                        <span class="user-id">ID: ${u.id}</span>
                     </div>`;
             });
-        } catch (e) { console.error(e); }
+        } catch (err) {
+            box.innerHTML = `<p style="color:#ff7b72;">Error de conexión con Supabase.</p>`;
+        }
     }
 
-    // Función para enviar el mensaje de ajedrez a todos
-    async function sendTest() {
-        const text = document.getElementById("welcomeMsg").innerText;
-        const confirmacion = confirm("¿Quieres enviar el mensaje de Ajedrez a todos los usuarios de la base de datos?");
+    async function setupWebhook() {
+        const confirmacion = confirm("¿Quieres activar el disparador automático? Esto hará que el bot responda al /start usando tu función de Supabase.");
+        if(!confirmacion) return;
+
+        const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=${edgeFunctionUrl}`;
         
-        if (!confirmacion) return;
-
         try {
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id`, {
-                headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
-            });
-            const users = await res.json();
-
-            for (const u of users) {
-                await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ chat_id: u.id, text: text })
-                });
+            const res = await fetch(url);
+            const data = await res.json();
+            if(data.ok) {
+                alert("✅ ¡Disparador Activado! El bot ya responderá solo.");
+            } else {
+                alert("❌ Error de Telegram: " + data.description);
             }
-            alert("¡Mensaje de ajedrez enviado con éxito!");
         } catch (e) {
-            alert("Error en el envío");
+            alert("Error al conectar con la API de Telegram.");
         }
     }
 
