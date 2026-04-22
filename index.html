@@ -5,111 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bot Dashboard</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0a0b10;
-            color: white;
-        }
-
-        .top {
-            display: flex;
-            background: #161b22;
-        }
-
-        .top button {
-            flex: 1;
-            padding: 15px;
-            background: #161b22;
-            border: none;
-            color: #8b949e;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .top button.active {
-            color: #00f2ff;
-            border-bottom: 2px solid #00f2ff;
-        }
-
-        .page {
-            display: none;
-            padding: 20px;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .card {
-            background: #161b22;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-
-        .user {
-            padding: 8px;
-            border-bottom: 1px solid #30363d;
-            font-size: 14px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 120px;
-            background: #0d1117;
-            color: white;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        button.send {
-            width: 100%;
-            padding: 15px;
-            background: #00f2ff;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            border-radius: 8px;
-        }
+        body { margin: 0; font-family: Arial, sans-serif; background: #0a0b10; color: white; }
+        .top { display: flex; background: #161b22; position: sticky; top: 0; }
+        .top button { flex: 1; padding: 15px; background: #161b22; border: none; color: #8b949e; cursor: pointer; font-weight: bold; }
+        .top button.active { color: #00f2ff; border-bottom: 2px solid #00f2ff; }
+        .page { display: none; padding: 20px; }
+        .page.active { display: block; }
+        .card { background: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #30363d; }
+        .user { padding: 8px; border-bottom: 1px solid #30363d; font-size: 14px; }
+        textarea { width: 100%; height: 120px; background: #0d1117; color: white; border: 1px solid #30363d; border-radius: 8px; padding: 10px; box-sizing: border-box; }
+        button.send { width: 100%; padding: 15px; background: #00f2ff; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; border-radius: 8px; color: #0a0b10; }
+        button.send:disabled { background: #30363d; color: #8b949e; }
     </style>
 </head>
 <body>
 
 <div class="top">
-    <button id="tab-dash" class="active" onclick="show('dash', event)">📊 Dashboard</button>
-    <button id="tab-msg" onclick="show('msg', event)">📨 Mensajes</button>
+    <button id="btn-dash" class="active" onclick="show('dash')">📊 Dashboard</button>
+    <button id="btn-msg" onclick="show('msg')">📨 Mensajes</button>
 </div>
 
 <div id="dash" class="page active">
     <div class="card">
-        <h2>Total usuarios: <span id="total">0</span></h2>
+        <h2>Total usuarios: <span id="total">--</span></h2>
     </div>
     <div class="card">
-        <h3>Usuarios</h3>
-        <div id="users">Cargando...</div>
+        <h3>Lista de Usuarios</h3>
+        <div id="users">Cargando datos...</div>
     </div>
 </div>
 
 <div id="msg" class="page">
     <div class="card">
-        <h3>Enviar mensaje</h3>
-        <textarea id="text" placeholder="Escribe tu mensaje aquí..."></textarea>
-        <button class="send" onclick="send()">Enviar a todos</button>
+        <h3>Enviar mensaje masivo</h3>
+        <textarea id="text" placeholder="Escribe el mensaje para tus usuarios..."></textarea>
+        <button class="send" id="btnSend" onclick="send()">Enviar a todos</button>
     </div>
 </div>
 
 <script>
-    // 🔥 CONFIGURACIÓN (Limpiada de prefijos innecesarios)
     const SUPABASE_URL = "https://jmmdqhxraphmaemevfja.supabase.co";
     const SUPABASE_KEY = "sb_publishable_UobkYsDWSBwcTZpJ3d8tsQ_0hQX0N_y";
     const TELEGRAM_TOKEN = "8744945852:AAGKyUVHutoTDP8RhV-YFTmYgLnvr5q5lhE";
 
-    // Cargar usuarios al iniciar
     async function load() {
+        const box = document.getElementById("users");
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/users?select=*`, {
                 headers: {
@@ -117,73 +57,70 @@
                     "Authorization": `Bearer ${SUPABASE_KEY}`
                 }
             });
-            const users = await res.json();
+            
+            if (!res.ok) throw new Error("Fallo en la conexión o permisos (RLS)");
 
+            const users = await res.json();
             document.getElementById("total").innerText = users.length;
-            const box = document.getElementById("users");
+            
             box.innerHTML = "";
+            if (users.length === 0) {
+                box.innerHTML = "No hay usuarios en la base de datos.";
+                return;
+            }
 
             users.forEach(u => {
                 const div = document.createElement("div");
                 div.className = "user";
-                div.innerText = `${u.first_name || "Sin nombre"} | #${u.id}`;
+                div.innerText = `${u.first_name || "Sin nombre"} | ID: ${u.id}`;
                 box.appendChild(div);
             });
         } catch (err) {
-            console.error("Error cargando usuarios:", err);
-            document.getElementById("users").innerText = "Error al conectar con Supabase.";
+            box.innerHTML = `<span style="color:red">Error: Verifica el RLS en Supabase</span>`;
+            console.error(err);
         }
     }
 
-    // Enviar mensaje masivo
     async function send() {
         const text = document.getElementById("text").value;
-        if (!text) return alert("Escribe un mensaje primero");
+        const btn = document.getElementById("btnSend");
+        if (!text) return alert("Escribe un mensaje");
 
-        const btn = document.querySelector(".send");
         btn.innerText = "Enviando...";
         btn.disabled = true;
 
         try {
-            const usersRes = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id`, {
-                headers: {
-                    "apikey": SUPABASE_KEY,
-                    "Authorization": `Bearer ${SUPABASE_KEY}`
-                }
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id`, {
+                headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
             });
-            const users = await usersRes.json();
+            const users = await res.json();
 
             for (const u of users) {
-                // Corregido: sendMessage
                 await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        chat_id: u.id,
-                        text: text
-                    })
+                    body: JSON.stringify({ chat_id: u.id, text: text })
                 });
             }
-            alert(`Enviado a ${users.length} usuarios`);
+            alert("¡Mensaje enviado a todos!");
             document.getElementById("text").value = "";
         } catch (err) {
-            alert("Error al enviar los mensajes");
+            alert("Error al procesar el envío");
         } finally {
             btn.innerText = "Enviar a todos";
             btn.disabled = false;
         }
     }
 
-    // Cambio de pestañas
-    function show(id, e) {
+    function show(id) {
         document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
         document.querySelectorAll(".top button").forEach(b => b.classList.remove("active"));
 
         document.getElementById(id).classList.add("active");
-        e.currentTarget.classList.add("active");
+        if(id === 'dash') document.getElementById('btn-dash').classList.add('active');
+        if(id === 'msg') document.getElementById('btn-msg').classList.add('active');
     }
 
-    // Ejecutar carga inicial
     load();
 </script>
 
