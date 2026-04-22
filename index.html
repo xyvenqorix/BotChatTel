@@ -110,8 +110,8 @@ button.send{
 <script>
 
 // 🔥 CONFIG SUPABASE
-const SUPABASE_URL = "TU_SUPABASE_URL";
-const SUPABASE_KEY = "TU_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "NEXT_PUBLIC_SUPABASE_URL=https://jmmdqhxraphmaemevfja.supabase.co";
+const SUPABASE_KEY = "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_UobkYsDWSBwcTZpJ3d8tsQ_0hQX0N_y";
 
 // cargar usuarios
 async function load(){
@@ -154,7 +154,7 @@ async function send(){
     const users = await usersRes.json();
 
     for(const u of users){
-        await fetch("https://api.telegram.org/botTU_TOKEN/sendMessage", {
+        await fetch("https://api.telegram.org/bot8744945852:AAGKyUVHutoTDP8RhV-YFTmYgLnvr5q5lhE/sendMe", {
             method:"POST",
             headers:{ "Content-Type":"application/json" },
             body: JSON.stringify({
