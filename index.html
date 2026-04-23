@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pixel Monster Battle - TON Edition</title>
-    <!-- SDK de Telegram y TON Connect -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,7 +32,6 @@
             font-size: 8px;
             line-height: 1.5;
         }
-        /* Pantalla de bloqueo inicial */
         #auth-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -55,60 +53,49 @@
             width: 90%;
             background: #16213e;
         }
-        .ton-logo-btn {
+        /* BOTÓN MEJORADO */
+        .ton-btn-custom {
             background: #0088cc;
-            border-radius: 12px;
-            padding: 15px 30px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 3px solid white;
+            border-bottom: 4px solid #005f8d;
+            transition: all 0.1s;
         }
-        .ton-logo-btn:active {
-            transform: scale(0.95);
+        .ton-btn-custom:active {
+            transform: translateY(2px);
+            border-bottom-width: 0px;
         }
     </style>
 </head>
 <body class="flex flex-col items-center justify-between h-screen p-4">
 
-    <!-- Pantalla de Bienvenida / Auth -->
     <div id="auth-overlay">
         <h1 class="text-xl mb-6 text-yellow-400">PIXEL MONSTERS</h1>
-        <div id="welcome-msg" class="text-[12px] mb-8">Cargando...</div>
+        <div id="welcome-msg" class="text-[12px] mb-8">Preparando arena...</div>
         
-        <!-- Botón de Vinculación Visual -->
         <div class="mb-8 flex flex-col items-center">
-            <p class="text-[10px] mb-6 text-gray-400">Toca el logo para conectar Tonkeeper</p>
-            <div id="ton-connect-trigger" class="ton-logo-btn shadow-lg">
-                <svg width="40" height="40" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M256 512C397.385 512 512 397.385 512 256C512 114.615 397.385 0 256 0C114.615 0 0 114.615 0 256C0 397.385 114.615 512 256 512Z" fill="#0088CC"/>
-                    <path d="M141.529 168.118C141.529 164.316 144.382 161.109 148.156 160.655L251.378 148.241C254.436 147.873 257.564 147.873 260.622 148.241L363.844 160.655C367.618 161.109 370.471 164.316 370.471 168.118V214.352C370.471 217.433 368.595 220.211 365.688 221.433L262.466 264.847C258.347 266.579 253.653 266.579 249.534 264.847L146.312 221.433C143.405 220.211 141.529 217.433 141.529 214.352V168.118Z" fill="white"/>
-                    <path d="M256 295.529L356.471 253.271V339.2C356.471 343.834 353.491 347.925 349.124 349.301L263.247 376.36C258.558 377.838 253.442 377.838 248.753 376.36L162.876 349.301C158.509 347.925 155.529 343.834 155.529 339.2V253.271L256 295.529Z" fill="white"/>
+            <p class="text-[9px] mb-6 text-blue-300">CONECTA TU WALLET PARA JUGAR</p>
+            
+            <div id="ton-connect-trigger" class="ton-btn-custom flex items-center gap-3 px-6 py-4 rounded-xl cursor-pointer">
+                <svg width="30" height="30" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M256 512c141.385 0 256-114.615 256-256S397.385 0 256 0 0 114.615 0 256s114.615 256 256 256z" fill="white"/>
+                    <path d="M256 468c117.085 0 212-94.915 212-212S373.085 44 256 44 44 138.915 44 256s94.915 212 212 212z" fill="#0088cc"/>
+                    <path d="M197.042 153.218c-10.748-8.243-25.962-1.393-27.108 12.186L143.2 468.46c-1.332 15.792 17.514 24.815 29.412 14.075L256 408.016l83.388 74.519c11.898 10.74 30.744 1.717 29.412-14.075l-26.734-303.056c-1.146-13.579-16.36-20.429-27.108-12.186L256 201.272l-58.958-48.054z" fill="white"/>
                 </svg>
-                <span class="text-[12px] font-bold">CONECTAR</span>
+                <span class="text-[12px] font-bold">VINCULAR</span>
             </div>
-            <!-- El componente real de TON Connect se oculta pero se usa su lógica -->
-            <div id="ton-connect-main" class="mt-4 opacity-0 h-0 overflow-hidden"></div>
+
+            <div id="ton-connect-main" style="display:none"></div>
         </div>
     </div>
 
-    <!-- Cabecera de Juego -->
     <div class="w-full flex justify-between items-center bg-gray-800 p-2 rounded-lg pixel-border text-[8px]">
         <div class="flex flex-col">
             <span id="player-name">@Usuario</span>
             <span class="text-yellow-400 mt-1">Puntos: <span id="user-points">0</span></span>
         </div>
-        <div class="flex gap-2 items-center">
-            <button onclick="openWithdraw()" class="bg-blue-600 px-2 py-1 rounded border border-white">RETIRAR</button>
-            <div id="ton-connect-header" class="scale-75 origin-right"></div>
-        </div>
+        <button onclick="openWithdraw()" class="bg-blue-600 px-2 py-1 rounded border border-white">RETIRAR</button>
     </div>
 
-    <!-- Escena de Batalla -->
     <div id="game-scene" class="relative w-full flex-grow flex flex-col items-center justify-center space-y-8">
-        <!-- Enemigo -->
         <div class="flex flex-col items-center">
             <div class="w-48 bg-gray-700 h-3 mb-1 rounded-full overflow-hidden border-2 border-white">
                 <div id="enemy-hp" class="bg-red-500 h-full w-full transition-all"></div>
@@ -116,9 +103,8 @@
             <div id="enemy-container" class="monster-float"></div>
         </div>
 
-        <div class="text-[10px] text-blue-300 italic tracking-widest">FIGHT!</div>
+        <div class="text-[10px] text-blue-300 italic animate-pulse">-- READY? --</div>
 
-        <!-- Jugador -->
         <div class="flex flex-col items-center">
             <div id="player-container" class="monster-float"></div>
             <div class="w-48 bg-gray-700 h-3 mt-1 rounded-full overflow-hidden border-2 border-white">
@@ -127,10 +113,9 @@
         </div>
     </div>
 
-    <!-- Controles -->
     <div class="w-full bg-black/50 p-3 rounded-t-xl pixel-border">
         <div id="battle-log" class="battle-log h-12 overflow-y-auto mb-2 text-gray-300 border-b border-gray-600">
-            Inicia sesión para jugar.
+            Conecta tu wallet para iniciar...
         </div>
         <div class="grid grid-cols-2 gap-2">
             <button onclick="attack()" class="bg-red-600 py-3 text-[10px] rounded active:scale-95 border-b-4 border-red-800">ATAQUE</button>
@@ -138,17 +123,14 @@
         </div>
     </div>
 
-    <!-- Modal de Retiro -->
     <div id="withdraw-modal" class="p-6 pixel-border text-center">
         <h2 class="text-sm mb-4 text-yellow-400">RETIRAR PUNTOS</h2>
-        <p class="text-[10px] mb-4">Transferencia directa a tu wallet vinculada.</p>
         <div class="bg-black/30 p-4 mb-4 border border-blue-500">
-            <p class="text-[12px]">Disponible:</p>
             <p id="withdraw-balance" class="text-xl text-green-400">0 PTS</p>
         </div>
         <div class="flex flex-col gap-2">
-            <button onclick="processWithdraw()" class="bg-green-600 py-2 text-[10px] border-b-4 border-green-900">CONFIRMAR RETIRO</button>
-            <button onclick="closeWithdraw()" class="bg-gray-600 py-2 text-[10px] border-b-4 border-gray-800">CANCELAR</button>
+            <button onclick="processWithdraw()" class="bg-green-600 py-2 text-[10px]">CONFIRMAR</button>
+            <button onclick="closeWithdraw()" class="bg-gray-600 py-2 text-[10px]">CERRAR</button>
         </div>
     </div>
 
@@ -168,73 +150,67 @@
             tg.expand();
             tg.ready();
 
-            // Saludo personalizado
             const user = tg.initDataUnsafe?.user;
-            const userName = user ? `@${user.username || user.first_name}` : "@Explorador";
-            document.getElementById('welcome-msg').innerText = `¡Bienvenido ${userName}!`;
+            const userName = user ? `@${user.username || user.first_name}` : "@Gamer";
             document.getElementById('player-name').innerText = userName;
             document.getElementById('user-points').innerText = gameState.points;
 
-            // Inicializar SVGs de monstruos
             document.getElementById('player-container').innerHTML = createMonsterSVG('#4ecca3', '#45b293');
             document.getElementById('enemy-container').innerHTML = createMonsterSVG('#ff4b5c', '#d63447', true);
 
             initTonConnect();
-
-            // Evento para el botón visual de TON
-            document.getElementById('ton-connect-trigger').addEventListener('click', () => {
-                const connectBtn = document.querySelector('#ton-connect-main button');
-                if (connectBtn) connectBtn.click();
-            });
         };
 
         function initTonConnect() {
-            if (typeof TONConnectUI !== 'undefined') {
-                tonConnectUI = new TONConnectUI.TonConnectUI({
-                    manifestUrl: 'https://gist.githubusercontent.com/siandreev/75f3227497d5193a027960a5e8e8055a/raw/8226068222a075306660d1ba796e67cf75cf15d9/tonconnect-manifest.json',
-                    buttonRootId: 'ton-connect-main'
-                });
+            // Usando manifest oficial de prueba para asegurar que cargue
+            tonConnectUI = new TONConnectUI.TonConnectUI({
+                manifestUrl: 'https://raw.githubusercontent.com/ton-connect/demo-dapp/main/public/tonconnect-manifest.json',
+                buttonRootId: 'ton-connect-main'
+            });
 
-                const headerButton = new TONConnectUI.TonConnectUI({
-                    manifestUrl: 'https://gist.githubusercontent.com/siandreev/75f3227497d5193a027960a5e8e8055a/raw/8226068222a075306660d1ba796e67cf75cf15d9/tonconnect-manifest.json',
-                    buttonRootId: 'ton-connect-header'
-                });
+            // Acción del botón personalizado
+            document.getElementById('ton-connect-trigger').addEventListener('click', async () => {
+                tg.HapticFeedback.impactOccurred('medium');
+                try {
+                    await tonConnectUI.openModal();
+                } catch(e) {
+                    console.error("Error al abrir modal", e);
+                }
+            });
 
-                tonConnectUI.onStatusChange(wallet => {
-                    if (wallet) {
-                        isWalletConnected = true;
-                        document.getElementById('auth-overlay').style.display = 'none';
-                        updateLog("Wallet vinculada correctamente.");
-                    } else {
-                        isWalletConnected = false;
-                        document.getElementById('auth-overlay').style.display = 'flex';
-                    }
-                });
-            } else {
-                setTimeout(initTonConnect, 500);
-            }
+            // Monitorear conexión
+            tonConnectUI.onStatusChange(wallet => {
+                if (wallet) {
+                    isWalletConnected = true;
+                    document.getElementById('auth-overlay').style.display = 'none';
+                    updateLog("Wallet conectada. ¡A pelear!");
+                } else {
+                    isWalletConnected = false;
+                    document.getElementById('auth-overlay').style.display = 'flex';
+                }
+            });
         }
 
         function createMonsterSVG(color1, color2, isEnemy = false) {
             const flip = isEnemy ? '' : 'transform="scale(-1, 1) translate(-24, 0)"';
             return `
-                <svg width="110" height="110" viewBox="0 0 24 24" ${flip} xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+                <svg width="100" height="100" viewBox="0 0 24 24" ${flip} xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
                     <rect x="6" y="8" width="12" height="10" fill="${color1}" />
                     <rect x="8" y="6" width="8" height="2" fill="${color1}" />
                     <rect x="13" y="9" width="2" height="2" fill="white" />
                     <rect x="14" y="10" width="1" height="1" fill="black" />
                     <rect x="7" y="18" width="3" height="2" fill="${color2}" />
                     <rect x="14" y="18" width="3" height="2" fill="${color2}" />
-                    <rect x="4" y="10" width="2" height="4" fill="${color2}" />
                 </svg>
             `;
         }
 
         function attack() {
             if(!isWalletConnected || gameState.isGameOver) return;
+            tg.HapticFeedback.impactOccurred('light');
             let damage = Math.floor(Math.random() * 20) + 15;
             gameState.enemyHP -= damage;
-            updateLog(`Golpe crítico: -${damage} HP`);
+            updateLog(`Ataque: -${damage} HP`);
             
             if(gameState.enemyHP <= 0) {
                 gameState.enemyHP = 0;
@@ -243,18 +219,18 @@
                 setTimeout(() => {
                     let eDmg = Math.floor(Math.random() * 15) + 5;
                     gameState.playerHP -= eDmg;
-                    updateLog(`El enemigo ataca: -${eDmg} HP`);
+                    updateLog(`Enemigo: -${eDmg} HP`);
                     if(gameState.playerHP <= 0) lose();
                     updateUI();
-                }, 500);
+                }, 400);
             }
             updateUI();
         }
 
         function heal() {
             if(!isWalletConnected || gameState.isGameOver) return;
-            gameState.playerHP = Math.min(100, gameState.playerHP + 30);
-            updateLog("Poción usada: +30 HP");
+            gameState.playerHP = Math.min(100, gameState.playerHP + 25);
+            updateLog("Curación: +25 HP");
             updateUI();
         }
 
@@ -272,27 +248,26 @@
 
         function win() {
             gameState.isGameOver = true;
-            gameState.points += 50;
+            gameState.points += 10;
             localStorage.setItem('pixel_points', gameState.points);
             document.getElementById('user-points').innerText = gameState.points;
-            updateLog("¡VICTORIA! +50 Puntos ganados");
+            updateLog("¡GANASTE! +10 PTS");
             tg.HapticFeedback.notificationOccurred('success');
-            setTimeout(resetGame, 3000);
+            setTimeout(resetGame, 2000);
         }
 
         function lose() {
             gameState.isGameOver = true;
-            updateLog("Derrotado. Reintentando...");
+            updateLog("Derrota...");
             tg.HapticFeedback.notificationOccurred('error');
-            setTimeout(resetGame, 3000);
+            setTimeout(resetGame, 2000);
         }
 
         function resetGame() {
-            gameState.playerHP = 100;
-            gameState.enemyHP = 100;
+            gameState.playerHP = 100; gameState.enemyHP = 100;
             gameState.isGameOver = false;
             updateUI();
-            updateLog("Comienza un nuevo duelo.");
+            updateLog("Nueva batalla...");
         }
 
         function openWithdraw() {
@@ -305,19 +280,12 @@
         }
 
         function processWithdraw() {
-            if (gameState.points < 100) {
-                updateLog("Mínimo de retiro: 100 PTS.");
-                closeWithdraw();
+            if (gameState.points < 50) {
+                tg.showAlert("Necesitas al menos 50 puntos.");
                 return;
             }
-            updateLog("Sincronizando con Tonkeeper...");
-            setTimeout(() => {
-                gameState.points = 0;
-                localStorage.setItem('pixel_points', 0);
-                document.getElementById('user-points').innerText = 0;
-                updateLog("Transferencia realizada con éxito.");
-                closeWithdraw();
-            }, 2000);
+            updateLog("Procesando en blockchain...");
+            closeWithdraw();
         }
     </script>
 </body>
