@@ -3,65 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pixel Monster Battle - TON</title>
+<title>TON CONNECT FIX</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
 
 <style>
 body {
-  background:#1a1a2e;
-  color:white;
-  font-family:monospace;
+  background:#111;
+  color:#fff;
+  text-align:center;
+  padding-top:50px;
+  font-family:Arial;
 }
-.btn {
+button {
+  padding:15px;
   background:#0088cc;
-  padding:12px;
+  border:none;
   border-radius:10px;
+  color:white;
+  font-size:16px;
 }
 </style>
 </head>
 
-<body class="flex flex-col items-center justify-center h-screen gap-4">
+<body>
 
-<h1>PIXEL MONSTER</h1>
+<h2>Conectar Tonkeeper</h2>
 
-<button id="connect" class="btn">CONECTAR WALLET</button>
+<button id="btn">CONECTAR</button>
 
-<p id="status">No conectado</p>
+<p id="status">Esperando...</p>
 
 <script>
 const tg = window.Telegram.WebApp;
 tg.expand();
 tg.ready();
 
-let tonConnectUI;
-
-// 🔥 CONFIGURACIÓN CORRECTA
-tonConnectUI = new TONConnectUI.TonConnectUI({
+let tonConnectUI = new TONConnectUI.TonConnectUI({
   manifestUrl: "https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json"
 });
 
-// ✅ BOTÓN
-document.getElementById("connect").onclick = async () => {
+// 🔥 BOTÓN REAL
+document.getElementById("btn").onclick = async () => {
 
   try {
-    // 👇 ESTO ABRE TONKEEPER REAL
-    await tonConnectUI.connectWallet();
+    const wallets = await tonConnectUI.getWallets();
+
+    if (!wallets.length) {
+      alert("No hay wallets disponibles");
+      return;
+    }
+
+    // 👇 BUSCA TONKEEPER
+    const tonkeeper = wallets.find(w => 
+      w.name.toLowerCase().includes("tonkeeper")
+    );
+
+    if (tonkeeper) {
+      // 👇 ESTO SÍ ABRE LA APP
+      await tonConnectUI.connectWallet(tonkeeper);
+    } else {
+      // fallback
+      await tonConnectUI.connectWallet(wallets[0]);
+    }
 
   } catch (e) {
     console.log(e);
-    alert("Instala Tonkeeper");
+    alert("Error al conectar wallet");
   }
 };
 
 // ✅ ESTADO
 tonConnectUI.onStatusChange(wallet => {
-  if(wallet){
-    document.getElementById("status").innerText = "Wallet conectada ✅";
-  }else{
-    document.getElementById("status").innerText = "No conectado";
+  if (wallet) {
+    document.getElementById("status").innerText = "✅ Conectado";
+  } else {
+    document.getElementById("status").innerText = "❌ No conectado";
   }
 });
 </script>
