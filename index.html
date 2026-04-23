@@ -1,58 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Monster Battle - TON</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+  background:#1a1a2e;
+  color:white;
+  font-family:monospace;
+}
+.btn {
+  background:#0088cc;
+  padding:12px;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body class="flex flex-col items-center justify-center h-screen gap-4">
+
+<h1>PIXEL MONSTER</h1>
+
+<button id="connect" class="btn">CONECTAR WALLET</button>
+
+<p id="status">No conectado</p>
+
 <script>
 const tg = window.Telegram.WebApp;
+tg.expand();
+tg.ready();
+
 let tonConnectUI;
-let isWalletConnected = false;
 
-let gameState = {
-    points: parseInt(localStorage.getItem('pixel_points')) || 0,
-    playerHP: 100,
-    enemyHP: 100,
-    isGameOver: false
+// 🔥 CONFIGURACIÓN CORRECTA
+tonConnectUI = new TONConnectUI.TonConnectUI({
+  manifestUrl: "https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json"
+});
+
+// ✅ BOTÓN
+document.getElementById("connect").onclick = async () => {
+
+  try {
+    // 👇 ESTO ABRE TONKEEPER REAL
+    await tonConnectUI.connectWallet();
+
+  } catch (e) {
+    console.log(e);
+    alert("Instala Tonkeeper");
+  }
 };
 
-window.onload = function() {
-    tg.expand();
-    tg.ready();
-
-    const user = tg.initDataUnsafe?.user;
-    const userName = user ? `@${user.username || user.first_name}` : "@Gamer";
-    document.getElementById('player-name').innerText = userName;
-    document.getElementById('user-points').innerText = gameState.points;
-
-    document.getElementById('player-container').innerHTML = createMonsterSVG('#4ecca3', '#45b293');
-    document.getElementById('enemy-container').innerHTML = createMonsterSVG('#ff4b5c', '#d63447', true);
-
-    initTonConnect();
-};
-
-function initTonConnect() {
-
-    tonConnectUI = new TONConnectUI.TonConnectUI({
-        manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json'
-    });
-
-    document.getElementById('ton-connect-trigger').addEventListener('click', async () => {
-        tg.HapticFeedback.impactOccurred('medium');
-
-        try {
-            // 👇 ESTO FUERZA abrir Tonkeeper
-            await tonConnectUI.connectWallet();
-
-        } catch (e) {
-            console.log(e);
-            tg.showAlert("Instala Tonkeeper o abre desde un navegador externo");
-        }
-    });
-
-    tonConnectUI.onStatusChange(wallet => {
-        if (wallet) {
-            isWalletConnected = true;
-            document.getElementById('auth-overlay').style.display = 'none';
-            updateLog("Wallet conectada 🔗");
-        } else {
-            isWalletConnected = false;
-            document.getElementById('auth-overlay').style.display = 'flex';
-        }
-    });
-}
+// ✅ ESTADO
+tonConnectUI.onStatusChange(wallet => {
+  if(wallet){
+    document.getElementById("status").innerText = "Wallet conectada ✅";
+  }else{
+    document.getElementById("status").innerText = "No conectado";
+  }
+});
 </script>
+
+</body>
+</html>
