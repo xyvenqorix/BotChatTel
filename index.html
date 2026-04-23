@@ -3,36 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TON Connect Fix</title>
+<title>TON Wallet Connect</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
 body{
+  margin:0;
   background:#0f0f1a;
   color:white;
   font-family:Arial;
   display:flex;
   flex-direction:column;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   height:100vh;
+}
+
+h1{
+  margin-bottom:20px;
 }
 
 button{
   background:#0088cc;
   border:none;
   padding:15px 25px;
-  border-radius:10px;
   color:white;
   font-size:16px;
+  border-radius:10px;
   cursor:pointer;
   transition:0.15s;
+  box-shadow:0 4px 0 #005f8d;
 }
 
 button:active{
-  transform:scale(0.95);
+  transform:translateY(3px);
+  box-shadow:0 1px 0 #005f8d;
 }
 
 #status{
@@ -45,9 +52,9 @@ button:active{
 
 <body>
 
-<h2>Conectar Wallet TON</h2>
+<h1>Conectar Wallet TON</h1>
 
-<button id="connectBtn">CONECTAR</button>
+<button id="btn">VINCULAR WALLET</button>
 
 <div id="status">Esperando acción...</div>
 
@@ -60,32 +67,31 @@ let tonConnectUI = new TONConnectUI.TonConnectUI({
   manifestUrl: "https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json"
 });
 
-const btn = document.getElementById("connectBtn");
+const btn = document.getElementById("btn");
 const status = document.getElementById("status");
 
+// CLICK BOTÓN
 btn.addEventListener("click", async () => {
 
-  status.innerText = "Intentando abrir wallet...";
+  status.innerText = "Abriendo conexión...";
 
   try {
-    await tonConnectUI.connectWallet();
-    status.innerText = "Conectando...";
+    // abre selector oficial TON Connect
+    await tonConnectUI.openModal();
 
   } catch (e) {
     console.log(e);
 
-    status.innerText = "No se pudo abrir automáticamente";
+    status.innerText = "Abre manualmente la wallet";
 
-    tg.showPopup({
-      title: "Wallet",
-      message: "No se pudo abrir  automáticamente. Ábrela manualmente.",
-      buttons: [{ type: "ok" }]
-    });
+    // fallback directo
+    window.location.href = "https://app.tonkeeper.com/ton-connect";
   }
 });
 
 // estado conexión
 tonConnectUI.onStatusChange(wallet => {
+
   if(wallet){
     status.innerText = "Wallet conectada ✅";
   } else {
