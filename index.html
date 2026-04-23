@@ -2,170 +2,323 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xyvenqorix | Bot Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pixel Monster Battle - TON Edition</title>
+    <!-- SDK de Telegram y TON Connect -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #0a0b10;
-            --card: #161b22;
-            --accent: #00f2ff;
-            --border: #30363d;
-            --text: #e6edf3;
+        body {
+            font-family: 'Press+Start+2P', cursive;
+            background-color: #1a1a2e;
+            color: #fff;
+            overflow: hidden;
+            touch-action: manipulation;
         }
-
-        body { 
-            margin: 0; font-family: 'Segoe UI', Arial, sans-serif; 
-            background: var(--bg); color: white; 
-            display: flex; flex-direction: column; align-items: center;
+        .pixel-border {
+            border: 4px solid #fff;
+            box-shadow: 4px 4px 0px #000;
         }
-        
-        header {
-            width: 100%; background: var(--card); padding: 20px 0;
-            text-align: center; border-bottom: 1px solid var(--border);
-            margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        .monster-float {
+            animation: floating 3s ease-in-out infinite;
         }
-
-        .container { width: 90%; max-width: 600px; }
-
-        .card { 
-            background: var(--card); padding: 20px; border-radius: 12px; 
-            margin-bottom: 15px; border: 1px solid var(--border);
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
-
-        .card h2 { margin: 0; font-size: 0.9rem; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
-        .value { font-size: 2.8rem; font-weight: bold; color: var(--accent); margin-top: 5px; }
-
-        .msg-preview {
-            background: #0d1117; padding: 15px; border-radius: 8px;
-            border: 1px solid var(--accent); font-size: 14px;
-            white-space: pre-line; line-height: 1.4; color: #fff;
-            margin: 10px 0;
+        .battle-log {
+            font-size: 8px;
+            line-height: 1.5;
         }
-
-        .btn {
-            width: 100%; padding: 14px; border-radius: 8px; border: none;
-            font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px;
+        /* Pantalla de bloqueo inicial */
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #1a1a2e 0%, #0d0d1f 100%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
         }
-
-        .btn-refresh { background: #238636; color: white; margin-bottom: 20px; }
-        .btn-webhook { background: var(--accent); color: #000; }
-        .btn:hover { opacity: 0.8; transform: translateY(-1px); }
-
-        .user-list { max-height: 300px; overflow-y: auto; margin-top: 10px; }
-        .user-item { 
-            padding: 12px; border-bottom: 1px solid var(--border); 
-            display: flex; justify-content: space-between; align-items: center;
+        #withdraw-modal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            width: 90%;
+            background: #16213e;
         }
-
-        .user-name { font-weight: bold; color: var(--text); }
-        .user-id { color: #8b949e; font-family: monospace; font-size: 11px; }
-
-        code { background: #000; padding: 5px; display: block; font-size: 10px; border-radius: 4px; margin-top: 10px; word-break: break-all; color: #8b949e; }
+        .ton-logo-btn {
+            background: #0088cc;
+            border-radius: 12px;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid white;
+        }
+        .ton-logo-btn:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
-<body>
+<body class="flex flex-col items-center justify-between h-screen p-4">
 
-<header>
-    <h1>⚡ AJEDREZ BOT MANAGER</h1>
-</header>
-
-<div class="container">
-    <div class="card">
-        <h2>Usuarios Totales</h2>
-        <div id="total" class="value">--</div>
-    </div>
-
-    <div class="card">
-        <h2>Mensaje de Bienvenida Activo</h2>
-        <div class="msg-preview" id="msgText">
-            🔥 Hola Bienvenid@ Te gusta el ajedrez? Esto te va a encantar
-
-            Disfruta partidas rápidas y sin complicaciones:
-            🤖 Juega contra la IA
-            👥 O reta a un amigo en el mismo dispositivo
-
-            Sin instalar nada, directo y fácil ⚡
-
-            🚀 Entra ahora: https://t.me/chesssmokybot/chesssmoky
-        </div>
-        <p style="font-size: 11px; color: #8b949e;">Se envía automáticamente al presionar <b>START</b>.</p>
-    </div>
-
-    <div class="card">
-        <h2>Configuración del Disparador</h2>
-        <p style="font-size: 13px;">Para que el mensaje funcione, debes activar el Webhook de Supabase.</p>
-        <button class="btn btn-webhook" onclick="setupWebhook()">🔗 ACTIVAR DISPARADOR AUTOMÁTICO</button>
-        <code id="webhookUrl">Cargando URL de conexión...</code>
-    </div>
-
-    <button class="btn btn-refresh" onclick="load()">🔄 Sincronizar Base de Datos</button>
-
-    <div class="card">
-        <h3>Jugadores en Tiempo Real</h3>
-        <div id="users" class="user-list">Cargando...</div>
-    </div>
-</div>
-
-<script>
-    const SUPABASE_URL = "https://jmmdqhxraphmaemevfja.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_UobkYsDWSBwcTZpJ3d8tsQ_0hQX0N_y";
-    const TELEGRAM_TOKEN = "8744945852:AAGKyUVHutoTDP8RhV-YFTmYgLnvr5q5lhE";
-
-    // Generar URL del Webhook (Esto es lo que Telegram usará como "link de disparo")
-    const edgeFunctionUrl = `${SUPABASE_URL}/functions/v1/telegram-bot`;
-    document.getElementById('webhookUrl').innerText = `API Endpoint: ${edgeFunctionUrl}`;
-
-    async function load() {
-        const box = document.getElementById("users");
-        const totalEl = document.getElementById("total");
-        box.innerHTML = "Sincronizando...";
+    <!-- Pantalla de Bienvenida / Auth -->
+    <div id="auth-overlay">
+        <h1 class="text-xl mb-6 text-yellow-400">PIXEL MONSTERS</h1>
+        <div id="welcome-msg" class="text-[12px] mb-8">Cargando...</div>
         
-        try {
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/users?select=*&order=created_at.desc`, {
-                headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+        <!-- Botón de Vinculación Visual -->
+        <div class="mb-8 flex flex-col items-center">
+            <p class="text-[10px] mb-6 text-gray-400">Toca el logo para conectar Tonkeeper</p>
+            <div id="ton-connect-trigger" class="ton-logo-btn shadow-lg">
+                <svg width="40" height="40" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M256 512C397.385 512 512 397.385 512 256C512 114.615 397.385 0 256 0C114.615 0 0 114.615 0 256C0 397.385 114.615 512 256 512Z" fill="#0088CC"/>
+                    <path d="M141.529 168.118C141.529 164.316 144.382 161.109 148.156 160.655L251.378 148.241C254.436 147.873 257.564 147.873 260.622 148.241L363.844 160.655C367.618 161.109 370.471 164.316 370.471 168.118V214.352C370.471 217.433 368.595 220.211 365.688 221.433L262.466 264.847C258.347 266.579 253.653 266.579 249.534 264.847L146.312 221.433C143.405 220.211 141.529 217.433 141.529 214.352V168.118Z" fill="white"/>
+                    <path d="M256 295.529L356.471 253.271V339.2C356.471 343.834 353.491 347.925 349.124 349.301L263.247 376.36C258.558 377.838 253.442 377.838 248.753 376.36L162.876 349.301C158.509 347.925 155.529 343.834 155.529 339.2V253.271L256 295.529Z" fill="white"/>
+                </svg>
+                <span class="text-[12px] font-bold">CONECTAR</span>
+            </div>
+            <!-- El componente real de TON Connect se oculta pero se usa su lógica -->
+            <div id="ton-connect-main" class="mt-4 opacity-0 h-0 overflow-hidden"></div>
+        </div>
+    </div>
+
+    <!-- Cabecera de Juego -->
+    <div class="w-full flex justify-between items-center bg-gray-800 p-2 rounded-lg pixel-border text-[8px]">
+        <div class="flex flex-col">
+            <span id="player-name">@Usuario</span>
+            <span class="text-yellow-400 mt-1">Puntos: <span id="user-points">0</span></span>
+        </div>
+        <div class="flex gap-2 items-center">
+            <button onclick="openWithdraw()" class="bg-blue-600 px-2 py-1 rounded border border-white">RETIRAR</button>
+            <div id="ton-connect-header" class="scale-75 origin-right"></div>
+        </div>
+    </div>
+
+    <!-- Escena de Batalla -->
+    <div id="game-scene" class="relative w-full flex-grow flex flex-col items-center justify-center space-y-8">
+        <!-- Enemigo -->
+        <div class="flex flex-col items-center">
+            <div class="w-48 bg-gray-700 h-3 mb-1 rounded-full overflow-hidden border-2 border-white">
+                <div id="enemy-hp" class="bg-red-500 h-full w-full transition-all"></div>
+            </div>
+            <div id="enemy-container" class="monster-float"></div>
+        </div>
+
+        <div class="text-[10px] text-blue-300 italic tracking-widest">FIGHT!</div>
+
+        <!-- Jugador -->
+        <div class="flex flex-col items-center">
+            <div id="player-container" class="monster-float"></div>
+            <div class="w-48 bg-gray-700 h-3 mt-1 rounded-full overflow-hidden border-2 border-white">
+                <div id="player-hp" class="bg-green-500 h-full w-full transition-all"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="w-full bg-black/50 p-3 rounded-t-xl pixel-border">
+        <div id="battle-log" class="battle-log h-12 overflow-y-auto mb-2 text-gray-300 border-b border-gray-600">
+            Inicia sesión para jugar.
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+            <button onclick="attack()" class="bg-red-600 py-3 text-[10px] rounded active:scale-95 border-b-4 border-red-800">ATAQUE</button>
+            <button onclick="heal()" class="bg-green-600 py-3 text-[10px] rounded active:scale-95 border-b-4 border-green-800">CURAR</button>
+        </div>
+    </div>
+
+    <!-- Modal de Retiro -->
+    <div id="withdraw-modal" class="p-6 pixel-border text-center">
+        <h2 class="text-sm mb-4 text-yellow-400">RETIRAR PUNTOS</h2>
+        <p class="text-[10px] mb-4">Transferencia directa a tu wallet vinculada.</p>
+        <div class="bg-black/30 p-4 mb-4 border border-blue-500">
+            <p class="text-[12px]">Disponible:</p>
+            <p id="withdraw-balance" class="text-xl text-green-400">0 PTS</p>
+        </div>
+        <div class="flex flex-col gap-2">
+            <button onclick="processWithdraw()" class="bg-green-600 py-2 text-[10px] border-b-4 border-green-900">CONFIRMAR RETIRO</button>
+            <button onclick="closeWithdraw()" class="bg-gray-600 py-2 text-[10px] border-b-4 border-gray-800">CANCELAR</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        let tonConnectUI;
+        let isWalletConnected = false;
+
+        let gameState = {
+            points: parseInt(localStorage.getItem('pixel_points')) || 0,
+            playerHP: 100,
+            enemyHP: 100,
+            isGameOver: false
+        };
+
+        window.onload = function() {
+            tg.expand();
+            tg.ready();
+
+            // Saludo personalizado
+            const user = tg.initDataUnsafe?.user;
+            const userName = user ? `@${user.username || user.first_name}` : "@Explorador";
+            document.getElementById('welcome-msg').innerText = `¡Bienvenido ${userName}!`;
+            document.getElementById('player-name').innerText = userName;
+            document.getElementById('user-points').innerText = gameState.points;
+
+            // Inicializar SVGs de monstruos
+            document.getElementById('player-container').innerHTML = createMonsterSVG('#4ecca3', '#45b293');
+            document.getElementById('enemy-container').innerHTML = createMonsterSVG('#ff4b5c', '#d63447', true);
+
+            initTonConnect();
+
+            // Evento para el botón visual de TON
+            document.getElementById('ton-connect-trigger').addEventListener('click', () => {
+                const connectBtn = document.querySelector('#ton-connect-main button');
+                if (connectBtn) connectBtn.click();
             });
-            const users = await res.json();
-            totalEl.innerText = users.length;
+        };
+
+        function initTonConnect() {
+            if (typeof TONConnectUI !== 'undefined') {
+                tonConnectUI = new TONConnectUI.TonConnectUI({
+                    manifestUrl: 'https://gist.githubusercontent.com/siandreev/75f3227497d5193a027960a5e8e8055a/raw/8226068222a075306660d1ba796e67cf75cf15d9/tonconnect-manifest.json',
+                    buttonRootId: 'ton-connect-main'
+                });
+
+                const headerButton = new TONConnectUI.TonConnectUI({
+                    manifestUrl: 'https://gist.githubusercontent.com/siandreev/75f3227497d5193a027960a5e8e8055a/raw/8226068222a075306660d1ba796e67cf75cf15d9/tonconnect-manifest.json',
+                    buttonRootId: 'ton-connect-header'
+                });
+
+                tonConnectUI.onStatusChange(wallet => {
+                    if (wallet) {
+                        isWalletConnected = true;
+                        document.getElementById('auth-overlay').style.display = 'none';
+                        updateLog("Wallet vinculada correctamente.");
+                    } else {
+                        isWalletConnected = false;
+                        document.getElementById('auth-overlay').style.display = 'flex';
+                    }
+                });
+            } else {
+                setTimeout(initTonConnect, 500);
+            }
+        }
+
+        function createMonsterSVG(color1, color2, isEnemy = false) {
+            const flip = isEnemy ? '' : 'transform="scale(-1, 1) translate(-24, 0)"';
+            return `
+                <svg width="110" height="110" viewBox="0 0 24 24" ${flip} xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+                    <rect x="6" y="8" width="12" height="10" fill="${color1}" />
+                    <rect x="8" y="6" width="8" height="2" fill="${color1}" />
+                    <rect x="13" y="9" width="2" height="2" fill="white" />
+                    <rect x="14" y="10" width="1" height="1" fill="black" />
+                    <rect x="7" y="18" width="3" height="2" fill="${color2}" />
+                    <rect x="14" y="18" width="3" height="2" fill="${color2}" />
+                    <rect x="4" y="10" width="2" height="4" fill="${color2}" />
+                </svg>
+            `;
+        }
+
+        function attack() {
+            if(!isWalletConnected || gameState.isGameOver) return;
+            let damage = Math.floor(Math.random() * 20) + 15;
+            gameState.enemyHP -= damage;
+            updateLog(`Golpe crítico: -${damage} HP`);
             
-            box.innerHTML = "";
-            if (users.length === 0) {
-                box.innerHTML = "<p style='color:#8b949e; text-align:center;'>Sin registros nuevos.</p>";
+            if(gameState.enemyHP <= 0) {
+                gameState.enemyHP = 0;
+                win();
+            } else {
+                setTimeout(() => {
+                    let eDmg = Math.floor(Math.random() * 15) + 5;
+                    gameState.playerHP -= eDmg;
+                    updateLog(`El enemigo ataca: -${eDmg} HP`);
+                    if(gameState.playerHP <= 0) lose();
+                    updateUI();
+                }, 500);
+            }
+            updateUI();
+        }
+
+        function heal() {
+            if(!isWalletConnected || gameState.isGameOver) return;
+            gameState.playerHP = Math.min(100, gameState.playerHP + 30);
+            updateLog("Poción usada: +30 HP");
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('enemy-hp').style.width = `${gameState.enemyHP}%`;
+            document.getElementById('player-hp').style.width = `${gameState.playerHP}%`;
+        }
+
+        function updateLog(msg) {
+            const log = document.getElementById('battle-log');
+            const p = document.createElement('p');
+            p.innerText = `> ${msg}`;
+            log.prepend(p);
+        }
+
+        function win() {
+            gameState.isGameOver = true;
+            gameState.points += 50;
+            localStorage.setItem('pixel_points', gameState.points);
+            document.getElementById('user-points').innerText = gameState.points;
+            updateLog("¡VICTORIA! +50 Puntos ganados");
+            tg.HapticFeedback.notificationOccurred('success');
+            setTimeout(resetGame, 3000);
+        }
+
+        function lose() {
+            gameState.isGameOver = true;
+            updateLog("Derrotado. Reintentando...");
+            tg.HapticFeedback.notificationOccurred('error');
+            setTimeout(resetGame, 3000);
+        }
+
+        function resetGame() {
+            gameState.playerHP = 100;
+            gameState.enemyHP = 100;
+            gameState.isGameOver = false;
+            updateUI();
+            updateLog("Comienza un nuevo duelo.");
+        }
+
+        function openWithdraw() {
+            document.getElementById('withdraw-balance').innerText = `${gameState.points} PTS`;
+            document.getElementById('withdraw-modal').style.display = 'block';
+        }
+
+        function closeWithdraw() {
+            document.getElementById('withdraw-modal').style.display = 'none';
+        }
+
+        function processWithdraw() {
+            if (gameState.points < 100) {
+                updateLog("Mínimo de retiro: 100 PTS.");
+                closeWithdraw();
                 return;
             }
-
-            users.forEach(u => {
-                box.innerHTML += `
-                    <div class="user-item">
-                        <span class="user-name">${u.first_name || "Anónimo"}</span>
-                        <span class="user-id">ID: ${u.id}</span>
-                    </div>`;
-            });
-        } catch (err) {
-            box.innerHTML = `<p style="color:#ff7b72;">Error de conexión con Supabase.</p>`;
+            updateLog("Sincronizando con Tonkeeper...");
+            setTimeout(() => {
+                gameState.points = 0;
+                localStorage.setItem('pixel_points', 0);
+                document.getElementById('user-points').innerText = 0;
+                updateLog("Transferencia realizada con éxito.");
+                closeWithdraw();
+            }, 2000);
         }
-    }
-
-    async function setupWebhook() {
-        const confirmacion = confirm("¿Quieres activar el disparador automático? Esto hará que el bot responda al /start usando tu función de Supabase.");
-        if(!confirmacion) return;
-
-        const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=${edgeFunctionUrl}`;
-        
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
-            if(data.ok) {
-                alert("✅ ¡Disparador Activado! El bot ya responderá solo.");
-            } else {
-                alert("❌ Error de Telegram: " + data.description);
-            }
-        } catch (e) {
-            alert("Error al conectar con la API de Telegram.");
-        }
-    }
-
-    load();
-</script>
-
+    </script>
 </body>
 </html>
