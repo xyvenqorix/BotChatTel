@@ -3,215 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pixel Monster Battle - TON Edition</title>
+    <title>Pixel Monster Battle</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Press+Start+2P', cursive;
-            background-color: #1a1a2e;
-            color: #fff;
-            overflow: hidden;
-            touch-action: manipulation;
-        }
-        .pixel-border {
-            border: 4px solid #fff;
-            box-shadow: 4px 4px 0px #000;
-        }
-        .monster-float {
-            animation: floating 3s ease-in-out infinite;
-        }
-        @keyframes floating {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-        #auth-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, #1a1a2e 0%, #0d0d1f 100%);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
-        /* Botón estilo TON nativo */
-        .ton-connect-btn {
-            background-color: #0088cc;
-            border-radius: 16px;
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s;
-            border: 2px solid rgba(255,255,255,0.2);
-        }
-        .ton-connect-btn:active {
-            transform: scale(0.96);
-            background-color: #0077b5;
-        }
-    </style>
 </head>
-<body class="flex flex-col items-center justify-between h-screen p-4">
-
+<body>
     <div id="auth-overlay">
-        <h1 class="text-xl mb-6 text-yellow-400">PIXEL MONSTERS</h1>
-        <p class="text-[10px] mb-8 text-gray-400 uppercase tracking-widest">Conecta tu wallet para entrar</p>
+        <h1 class="game-title">PIXEL MONSTERS</h1>
+        <p class="subtitle">CONECTA TU WALLET PARA ENTRAR</p>
         
-        <div id="btn-vincular" class="ton-connect-btn shadow-2xl">
-            <svg width="32" height="32" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M256 512C397.385 512 512 397.385 512 256C512 114.615 397.385 0 256 0C114.615 0 0 114.615 0 256C0 397.385 114.615 512 256 512Z" fill="white"/>
-                <path d="M256 468C373.085 468 468 373.085 468 256C468 138.915 373.085 44 256 44C138.915 44 44 138.915 44 256C44 373.085 138.915 468 256 468Z" fill="#0088CC"/>
-                <path d="M197.042 153.218C186.294 144.975 171.08 151.825 169.934 165.404L143.2 468.46C141.868 484.252 160.714 493.275 172.612 482.535L256 408.016L339.388 482.535C351.286 493.275 370.132 484.252 368.8 468.46L342.066 165.404C340.92 151.825 325.706 144.975 314.958 153.218L256 201.272L197.042 153.218Z" fill="white"/>
-            </svg>
-            <span class="text-[12px] font-bold">VINCULAR WALLET</span>
+        <div id="btn-vincular" class="ton-connect-btn">
+            <img src="https://ton.org/download/ton_symbol.svg" alt="TON" class="ton-logo">
+            <span>VINCULAR WALLET</span>
         </div>
-
+        
         <div id="ton-connect-hidden" style="display: none;"></div>
     </div>
 
-    <div class="w-full flex justify-between items-center bg-gray-800 p-2 rounded-lg pixel-border text-[8px]">
-        <div class="flex flex-col">
-            <span id="player-name">Cargando...</span>
-            <span class="text-yellow-400 mt-1">Puntos: <span id="user-points">0</span></span>
-        </div>
-        <div class="flex items-center gap-2">
-            <div id="wallet-indicator" class="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span class="text-[7px]">STATUS</span>
-        </div>
-    </div>
-
-    <div class="relative w-full flex-grow flex flex-col items-center justify-center space-y-8">
-        <div class="flex flex-col items-center">
-            <div class="w-40 bg-gray-700 h-2 mb-2 rounded-full border border-white overflow-hidden">
-                <div id="enemy-hp" class="bg-red-500 h-full w-full transition-all"></div>
+    <div class="game-container">
+        <div class="header">
+            <div class="user-info">
+                <span id="player-name">Cargando...</span>
+                <span class="points">PTS: <span id="user-points">0</span></span>
             </div>
-            <div id="enemy-container" class="monster-float"></div>
+            <div id="wallet-status" class="status-dot"></div>
         </div>
 
-        <div class="text-[10px] text-blue-400 animate-pulse">VS</div>
+        <div class="battle-arena">
+            <div class="monster enemy">
+                <div class="hp-bar"><div id="enemy-hp" class="hp-fill red"></div></div>
+                <div id="enemy-sprite"></div>
+            </div>
+            
+            <div class="vs">VS</div>
 
-        <div class="flex flex-col items-center">
-            <div id="player-container" class="monster-float"></div>
-            <div class="w-40 bg-gray-700 h-2 mt-2 rounded-full border border-white overflow-hidden">
-                <div id="player-hp" class="bg-green-500 h-full w-full transition-all"></div>
+            <div class="monster player">
+                <div id="player-sprite"></div>
+                <div class="hp-bar"><div id="player-hp" class="hp-fill green"></div></div>
             </div>
         </div>
-    </div>
 
-    <div class="w-full bg-black/40 p-4 rounded-t-2xl pixel-border">
-        <div id="battle-log" class="text-[8px] h-10 overflow-y-auto mb-3 text-gray-400">
-            > Esperando conexión...
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-            <button onclick="attack()" class="bg-red-600 py-4 text-[10px] rounded-lg border-b-4 border-red-900 active:border-b-0 active:translate-y-1">ATAQUE</button>
-            <button onclick="heal()" class="bg-green-600 py-4 text-[10px] rounded-lg border-b-4 border-green-900 active:border-b-0 active:translate-y-1">CURAR</button>
+        <div class="controls">
+            <div id="battle-log"></div>
+            <div class="btn-group">
+                <button onclick="game.attack()" class="btn-atk">ATAQUE</button>
+                <button onclick="game.heal()" class="btn-heal">CURAR</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        let tonConnectUI;
-        let gameState = { points: 0, playerHP: 100, enemyHP: 100 };
-
-        window.onload = function() {
-            tg.expand();
-            tg.ready();
-            
-            // Nombre de usuario de Telegram
-            const user = tg.initDataUnsafe?.user;
-            document.getElementById('player-name').innerText = user ? `@${user.username || user.first_name}` : "@Gamer";
-
-            // Inicializar Monstruos
-            document.getElementById('player-container').innerHTML = createSVG('#4ecca3');
-            document.getElementById('enemy-container').innerHTML = createSVG('#ff4b5c', true);
-
-            initTonConnect();
-        };
-
-        function initTonConnect() {
-            // Manifest de prueba
-            tonConnectUI = new TONConnectUI.TonConnectUI({
-                manifestUrl: 'https://raw.githubusercontent.com/ton-connect/demo-dapp/main/public/tonconnect-manifest.json',
-                buttonRootId: 'ton-connect-hidden'
-            });
-
-            // EL EVENTO CLAVE: Abre el menú que pediste
-            document.getElementById('btn-vincular').onclick = async () => {
-                tg.HapticFeedback.impactOccurred('medium');
-                try {
-                    await tonConnectUI.openModal();
-                } catch(e) {
-                    console.error("Error modal:", e);
-                }
-            };
-
-            // Detectar conexión exitosa
-            tonConnectUI.onStatusChange(wallet => {
-                if (wallet) {
-                    document.getElementById('auth-overlay').style.display = 'none';
-                    document.getElementById('wallet-indicator').classList.replace('bg-red-500', 'bg-green-500');
-                    updateLog("¡Wallet vinculada! Batalla lista.");
-                } else {
-                    document.getElementById('auth-overlay').style.display = 'flex';
-                }
-            });
-        }
-
-        function createSVG(color, flip = false) {
-            const transform = flip ? '' : 'transform="scale(-1, 1) translate(-24, 0)"';
-            return `<svg width="100" height="100" viewBox="0 0 24 24" ${transform} xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-                <rect x="6" y="8" width="12" height="10" fill="${color}" />
-                <rect x="13" y="10" width="2" height="2" fill="white" />
-                <rect x="7" y="18" width="3" height="2" fill="#333" />
-                <rect x="14" y="18" width="3" height="2" fill="#333" />
-            </svg>`;
-        }
-
-        function attack() {
-            if(gameState.enemyHP <= 0) return;
-            tg.HapticFeedback.impactOccurred('light');
-            let dmg = Math.floor(Math.random() * 20) + 10;
-            gameState.enemyHP -= dmg;
-            updateUI();
-            updateLog(`Dañaste al enemigo: -${dmg}HP`);
-            
-            if(gameState.enemyHP <= 0) {
-                gameState.points += 50;
-                document.getElementById('user-points').innerText = gameState.points;
-                updateLog("¡VICTORIA! +50 PTS");
-                setTimeout(reset, 2000);
-            }
-        }
-
-        function heal() {
-            gameState.playerHP = Math.min(100, gameState.playerHP + 20);
-            updateUI();
-            updateLog("Te has curado +20HP");
-        }
-
-        function updateUI() {
-            document.getElementById('enemy-hp').style.width = gameState.enemyHP + "%";
-            document.getElementById('player-hp').style.width = gameState.playerHP + "%";
-        }
-
-        function updateLog(msg) {
-            const log = document.getElementById('battle-log');
-            log.innerHTML = `> ${msg}<br>` + log.innerHTML;
-        }
-
-        function reset() {
-            gameState.enemyHP = 100;
-            gameState.playerHP = 100;
-            updateUI();
-            updateLog("Nuevo enemigo aparece...");
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

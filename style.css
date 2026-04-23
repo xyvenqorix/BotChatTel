@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Press+Start+2P', cursive;
+    background-color: #0d0d1f;
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#auth-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle, #1a1a2e 0%, #05050a 100%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.game-title { color: #facc15; font-size: 18px; margin-bottom: 10px; }
+.subtitle { font-size: 8px; color: #94a3b8; margin-bottom: 40px; }
+
+.ton-connect-btn {
+    background: #0088cc;
+    padding: 18px 25px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border-bottom: 5px solid #005f8d;
+    transition: 0.1s;
+}
+
+.ton-connect-btn:active {
+    transform: translateY(3px);
+    border-bottom-width: 0;
+}
+
+.ton-logo { width: 30px; height: 30px; filter: brightness(0) invert(1); }
+.ton-connect-btn span { font-size: 12px; font-weight: bold; }
+
+.game-container { padding: 15px; display: flex; flex-direction: column; height: 100%; }
+.header { display: flex; justify-content: space-between; background: #1e293b; padding: 10px; border: 3px solid #fff; }
+.user-info { font-size: 8px; }
+.status-dot { width: 12px; height: 12px; border-radius: 50%; background: #ef4444; border: 2px solid #fff; }
+
+.battle-arena { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-around; align-items: center; }
+.hp-bar { width: 150px; height: 10px; background: #334155; border: 2px solid #fff; }
+.hp-fill { height: 100%; width: 100%; transition: 0.3s; }
+.red { background: #ef4444; }
+.green { background: #22c55e; }
+
+.controls { background: rgba(0,0,0,0.5); padding: 15px; border: 3px solid #fff; border-radius: 15px 15px 0 0; }
+#battle-log { height: 40px; font-size: 7px; color: #cbd5e1; overflow-y: auto; margin-bottom: 10px; }
+.btn-group { display: grid; grid-cols: 2; gap: 10px; display: flex; }
+button { flex: 1; padding: 15px; font-family: inherit; font-size: 9px; border: none; cursor: pointer; border-bottom: 4px solid rgba(0,0,0,0.3); }
+.btn-atk { background: #dc2626; color: white; }
+.btn-heal { background: #16a34a; color: white; }
